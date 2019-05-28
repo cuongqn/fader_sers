@@ -11,7 +11,7 @@ class SERSPreprocessor(object):
     def get_spectra_numpy(
         self,
         file_dir_list,
-        norm,
+        norm='spectra',
         sep="\t",
         header=None,
         names=["x", "y", "wavenumber", "intensity"],
@@ -27,9 +27,9 @@ class SERSPreprocessor(object):
         )
         spectra_arr = np.array(list(map(highpass_func, spectra_arr)))
         
-        if norm == 'spectra'
+        if norm == 'spectra':
             spectra_arr = zscore(spectra_arr,axis=1)
-        elif norm == 'feature'
+        elif norm == 'feature':
             spectra_arr = StandardScaler().fit_transform(spectra_arr)
         return spectra_arr
 
@@ -57,13 +57,13 @@ if __name__ == "__main__":
     spectra_arr = SERSPreprocessor().get_spectra_numpy(file_dir_list)
 
 
-#%%
-import matplotlib.pyplot as plt
-# plt.plot(spectra_arr[0])
-plt.plot(spectra_arr[400])
-plt.show()
+# #%%
+# import matplotlib.pyplot as plt
+# # plt.plot(spectra_arr[0])
+# plt.plot(spectra_arr[400])
+# plt.show()
 
-#%%
-spectra_arr.shape
+# #%%
+# spectra_arr.shape
 
 #%%
