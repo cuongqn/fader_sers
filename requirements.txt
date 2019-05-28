@@ -1,0 +1,16 @@
+ipython
+jupyter
+matplotlib
+notebook
+numpy
+pandas
+seaborn
+watermark
+pytest
+tqdm
+numpy
+pandas
+scikit-learn
+scipy
+requests
+fake_useragent
