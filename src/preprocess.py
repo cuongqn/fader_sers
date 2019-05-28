@@ -6,11 +6,6 @@ import functools
 from scipy.signal import butter, lfilter, filtfilt
 from scipy.stats import zscore
 
-
-data_dir = "data/raw/"
-concentrations = os.listdir(data_dir)
-
-
 class SERSPreprocessor(object):
     def get_spectra_numpy(
         self,
