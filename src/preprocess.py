@@ -5,11 +5,13 @@ import os
 import functools
 from scipy.signal import butter, lfilter, filtfilt
 from scipy.stats import zscore
+from sklearn.preprocessing import StandardScaler
 
 class SERSPreprocessor(object):
     def get_spectra_numpy(
         self,
         file_dir_list,
+        norm,
         sep="\t",
         header=None,
         names=["x", "y", "wavenumber", "intensity"],
@@ -24,8 +26,11 @@ class SERSPreprocessor(object):
             self.butter_bandpass_filter, lowcut=30, highcut=5000, fs=20001, order=1
         )
         spectra_arr = np.array(list(map(highpass_func, spectra_arr)))
-
-        spectra_arr = zscore(spectra_arr, axis=1)
+        
+        if norm == 'spectra'
+            spectra_arr = zscore(spectra_arr,axis=1)
+        elif norm == 'feature'
+            spectra_arr = StandardScaler().fit_transform(spectra_arr)
         return spectra_arr
 
     @staticmethod
@@ -47,5 +52,18 @@ class SERSPreprocessor(object):
         return spectra_arr
 
 if __name__ == "__main__":
+    data_dir = "data/raw/"
     file_dir_list = [data_dir + conc for conc in ["0.txt", "100000.txt"]]
     spectra_arr = SERSPreprocessor().get_spectra_numpy(file_dir_list)
+
+
+#%%
+import matplotlib.pyplot as plt
+# plt.plot(spectra_arr[0])
+plt.plot(spectra_arr[400])
+plt.show()
+
+#%%
+spectra_arr.shape
+
+#%%
