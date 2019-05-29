@@ -290,8 +290,6 @@ class LatentDiscriminator(nn.Module):
         elif len(x.size()) == 3:
             assert x.size()[1:] == (self.img_fm, self.img_sz)
         conv_output = self.conv_layers(x)
-        print(conv_output.size())
-        print(self.conv_out_fm)
         assert conv_output.size() == (x.size(0), self.conv_out_fm, 1, 1)
         return self.proj_layers(conv_output.view(x.size(0), self.conv_out_fm))
 
@@ -386,6 +384,8 @@ class Classifier(nn.Module):
             assert x.size()[1:] == (self.img_fm, self.img_sz)
 
         conv_output = self.conv_layers(x)
+        print(conv_output.size())
+        print(self.conv_out_fm)
         assert conv_output.size() == (x.size(0), self.conv_out_fm, 1, 1)
         return self.proj_layers(conv_output.view(x.size(0), self.conv_out_fm))
 
