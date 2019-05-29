@@ -118,10 +118,10 @@ class DataSampler(object):
         """
         # image IDs
         idx = torch.LongTensor(bs).random_(len(self.images))
-
+        batch_x = self.images.index_select(0, idx).cuda()
         # select images / attributes
         if self.norm:
-            batch_x = normalize_images(self.images.index_select(0, idx).cuda())
+            batch_x = normalize_images(batch_x)
         batch_y = self.attributes.index_select(0, idx).cuda()
 
         # data augmentation
@@ -137,7 +137,9 @@ class DataSampler(object):
         Get a batch of images in a range with their attributes.
         """
         assert i < j
+
+        batch_x = self.images[i:j].cuda()
         if self.norm:
-            batch_x = normalize_images(self.images[i:j].cuda())
+            batch_x = normalize_images(batch_x)
         batch_y = self.attributes[i:j].cuda()
         return Variable(batch_x, volatile=True), Variable(batch_y, volatile=True)
