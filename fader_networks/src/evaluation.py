@@ -48,7 +48,7 @@ class Evaluator(object):
         for i in range(0, len(data), bs):
             batch_x, batch_y = data.eval_batch(i, i + bs)
             _, dec_outputs = self.ae(batch_x, batch_y)
-            costs.append(((dec_outputs[-1] - batch_x) ** 2).mean().data[0])
+            costs.append(((dec_outputs[-1] - batch_x) ** 2).mean().item())
 
         return np.mean(costs)
 
