@@ -199,7 +199,10 @@ class AutoEncoder(nn.Module):
         self.dec_layers = nn.ModuleList(dec_layers)
 
     def encode(self, x):
-        assert x.size()[1:] == (self.img_fm, self.img_sz, self.img_sz)
+        if len(x.size()) == 4:
+            assert x.size()[1:] == (self.conv_in_fm, self.conv_in_sz, self.conv_in_sz)
+        elif len(x.size()) == 3:
+            assert x.size()[1:] == (self.img_fm, self.img_sz)
 
         enc_outputs = [x]
         for layer in self.enc_layers:
@@ -226,7 +229,7 @@ class AutoEncoder(nn.Module):
             dec_outputs.append(layer(input))
 
         assert len(dec_outputs) == self.n_layers + 1
-        assert dec_outputs[-1].size() == (bs, self.img_fm, self.img_sz, self.img_sz)
+        # assert dec_outputs[-1].size() == (bs, self.img_fm, self.img_sz, self.img_sz)
         return dec_outputs
 
     def forward(self, x, y):
