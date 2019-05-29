@@ -97,7 +97,7 @@ class Trainer(object):
         preds = self.lat_dis(Variable(enc_outputs[-1 - params.n_skip].data))
         # loss / optimize
         loss = get_attr_loss(preds, batch_y, False, params)
-        self.stats['lat_dis_costs'].append(loss.data[0])
+        self.stats['lat_dis_costs'].append(loss.item())
         self.lat_dis_optimizer.zero_grad()
         loss.backward()
         if params.clip_grad_norm:
@@ -124,7 +124,7 @@ class Trainer(object):
         # loss / optimize
         loss = F.binary_cross_entropy(real_preds, 1 - y_fake)
         loss += F.binary_cross_entropy(fake_preds, y_fake)
-        self.stats['ptc_dis_costs'].append(loss.data[0])
+        self.stats['ptc_dis_costs'].append(loss.item())
         self.ptc_dis_optimizer.zero_grad()
         loss.backward()
         if params.clip_grad_norm:
@@ -144,7 +144,7 @@ class Trainer(object):
         preds = self.clf_dis(batch_x)
         # loss / optimize
         loss = get_attr_loss(preds, batch_y, False, params)
-        self.stats['clf_dis_costs'].append(loss.data[0])
+        self.stats['clf_dis_costs'].append(loss.item())
         self.clf_dis_optimizer.zero_grad()
         loss.backward()
         if params.clip_grad_norm:
@@ -171,7 +171,7 @@ class Trainer(object):
         enc_outputs, dec_outputs = self.ae(batch_x, batch_y)
         # autoencoder loss from reconstruction
         loss = params.lambda_ae * ((batch_x - dec_outputs[-1]) ** 2).mean()
-        self.stats['rec_costs'].append(loss.data[0])
+        self.stats['rec_costs'].append(loss.item())
         # encoder loss from the latent discriminator
         if params.lambda_lat_dis:
             lat_dis_preds = self.lat_dis(enc_outputs[-1 - params.n_skip])
@@ -270,7 +270,7 @@ def classifier_step(classifier, optimizer, data, params, costs):
     preds = classifier(batch_x)
     # loss / optimize
     loss = get_attr_loss(preds, batch_y, False, params)
-    costs.append(loss.data[0])
+    costs.append(loss.item())
     optimizer.zero_grad()
     loss.backward()
     if params.clip_grad_norm:
