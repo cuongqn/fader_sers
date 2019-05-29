@@ -349,7 +349,11 @@ class Classifier(nn.Module):
         )
 
         # classifier layers are identical to encoder, but convolve until size 1
-        enc_layers, _ = build_layers(
+        if params.use_1d_conv:
+            build_layers_func = build_layers_1d
+        else:
+            build_layers_func = build_layers
+        enc_layers, _ = build_layers_func(
             self.img_sz,
             self.img_fm,
             self.init_fm,
