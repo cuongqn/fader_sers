@@ -224,9 +224,9 @@ class AutoEncoder(nn.Module):
             size = dec_outputs[-1].size(2)
             # attributes
             if len(enc_outputs[-1].size()) == 4:
-                y_ = y.expand(bs, self.n_attr, size)
-            elif len(enc_outputs[-1].size()) == 3:
                 y_ = y.expand(bs, self.n_attr, size, size)
+            elif len(enc_outputs[-1].size()) == 3:
+                y_ = y.expand(bs, self.n_attr, size)
             input = [dec_outputs[-1], y_]
             # skip connection
             if 0 < i <= self.n_skip:
