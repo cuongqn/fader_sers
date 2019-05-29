@@ -217,11 +217,17 @@ class AutoEncoder(nn.Module):
         assert y.size() == (bs, self.n_attr)
 
         dec_outputs = [enc_outputs[-1]]
-        y = y.unsqueeze(2).unsqueeze(3)
+        y = y.unsqueeze(2)
+        if len(enc_outputs[-1].size()) == 4:
+            y = y.unsqueeze(3)
         for i, layer in enumerate(self.dec_layers):
             size = dec_outputs[-1].size(2)
             # attributes
-            input = [dec_outputs[-1], y.expand(bs, self.n_attr, size, size)]
+            if len(enc_outputs[-1].size()) == 4:
+                y_ = y.expand(bs, self.n_attr, size)
+            elif len(enc_outputs[-1].size()) == 3:
+                y_ = y.expand(bs, self.n_attr, size, size)
+            input = [dec_outputs[-1], y_]
             # skip connection
             if 0 < i <= self.n_skip:
                 input.append(enc_outputs[-1 - i])
