@@ -151,7 +151,7 @@ def build_layers(
                 dec_layer.append(nn.Dropout(dec_dropout))
             dec_layer.append(nn.ReLU(inplace=True))
         else:
-            dec_layer.append(nn.Tanh())
+            # dec_layer.append(nn.Tanh())
 
         # update
         n_in = n_out
