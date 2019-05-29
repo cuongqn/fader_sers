@@ -76,7 +76,8 @@ def build_layers_1d(
                 dec_layer.append(nn.Dropout(dec_dropout))
             dec_layer.append(nn.ReLU(inplace=True))
         else:
-            dec_layer.append(nn.Tanh())
+            pass
+            # dec_layer.append(nn.Tanh())
 
         # update
         n_in = n_out
@@ -151,6 +152,7 @@ def build_layers(
                 dec_layer.append(nn.Dropout(dec_dropout))
             dec_layer.append(nn.ReLU(inplace=True))
         else:
+            pass
             # dec_layer.append(nn.Tanh())
 
         # update
