@@ -94,7 +94,7 @@ def normalize_images(images):
 
 class DataSampler(object):
 
-    def __init__(self, images, attributes, params):
+    def __init__(self, images, attributes, params, norm=True):
         """
         Initialize the data sampler with training data.
         """
@@ -104,6 +104,7 @@ class DataSampler(object):
         self.batch_size = params.batch_size
         self.v_flip = params.v_flip
         self.h_flip = params.h_flip
+        self.norm = norm
 
     def __len__(self):
         """
@@ -119,7 +120,8 @@ class DataSampler(object):
         idx = torch.LongTensor(bs).random_(len(self.images))
 
         # select images / attributes
-        batch_x = normalize_images(self.images.index_select(0, idx).cuda())
+        if self.norm:
+            batch_x = normalize_images(self.images.index_select(0, idx).cuda())
         batch_y = self.attributes.index_select(0, idx).cuda()
 
         # data augmentation
@@ -135,6 +137,7 @@ class DataSampler(object):
         Get a batch of images in a range with their attributes.
         """
         assert i < j
-        batch_x = normalize_images(self.images[i:j].cuda())
+        if self.norm:
+            batch_x = normalize_images(self.images[i:j].cuda())
         batch_y = self.attributes[i:j].cuda()
         return Variable(batch_x, volatile=True), Variable(batch_y, volatile=True)
