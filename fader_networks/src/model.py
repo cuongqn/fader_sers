@@ -291,7 +291,7 @@ class LatentDiscriminator(nn.Module):
         if len(x.size()) == 4:
             assert x.size()[1:] == (self.conv_in_fm, self.conv_in_sz, self.conv_in_sz)
         elif len(x.size()) == 3:
-            assert x.size()[1:] == (self.img_fm, self.img_sz)
+            assert x.size()[1:] == (self.conv_in_fm, self.conv_in_sz)
         conv_output = self.conv_layers(x)
         if len(x.size()) == 4:
             assert conv_output.size() == (x.size(0), self.conv_out_fm, 1, 1)
