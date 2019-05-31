@@ -5,16 +5,17 @@ import os
 import functools
 from scipy.signal import butter, lfilter, filtfilt
 from scipy.stats import zscore
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 class SERSPreprocessor(object):
     def get_spectra_numpy(
         self,
         file_dir_list,
         y_list,
-        norm='spectra',
+        norm='zscore', #standard, minmax
         sep="\t",
         header=None,
+        remove_outliers=True,
         names=["x", "y", "wavenumber", "intensity"],
     ):
         load_func = functools.partial(
@@ -26,18 +27,44 @@ class SERSPreprocessor(object):
         y_arr = np.concatenate(y_arr)
 
         highpass_func = functools.partial(
-            self.butter_bandpass_filter, lowcut=30, highcut=5000, fs=20001, order=1
+            self._butter_bandpass_filter, lowcut=30, highcut=5000, fs=20001, order=1
         )
         spectra_arr = np.array(list(map(highpass_func, spectra_arr)))
-        
-        if norm == 'spectra':
+        if remove_outliers:
+            spectra_arr, y_arr = self._remove_outliers(spectra_arr, y_arr)
+        if norm == 'zscore':
             spectra_arr = zscore(spectra_arr,axis=1)
-        elif norm == 'feature':
+        elif norm == 'standard':
             spectra_arr = StandardScaler().fit_transform(spectra_arr)
+        elif norm == 'minmax':
+            scaler = MinMaxScaler()
+            scaler.fit(spectra_arr)
+            spectra_arr = scaler.transform(spectra_arr)
+        elif norm == 'global_minmax':
+            spectra_arr = self._global_min_max_scaler(spectra_arr)
+        
         return spectra_arr, y_arr
+    
+    @staticmethod
+    def _remove_outliers(x, y):
+        idx_out = np.where(zscore(x) > 7)
+        idx_out = np.sort(np.unique(idx_out[0]))
+        idx_keep = np.array([i for i in range(x.shape[0]) if i not in idx_out])
+        x_clean = x[idx_keep]
+        y_clean = y[idx_keep]
+        return x_clean, y_clean
 
     @staticmethod
-    def butter_bandpass_filter(data, highcut, lowcut, fs, order=5):
+    def _global_min_max_scaler(x):
+        min_ = x.min()
+        max_ = x.max()
+        delta = max_ - min_
+        x_scaled = x - min_
+        x_scaled = x_scaled/delta
+        return x_scaled
+
+    @staticmethod
+    def _butter_bandpass_filter(data, highcut, lowcut, fs, order=5):
         nyq = 0.5 * fs
         low = lowcut / nyq
         high = highcut / nyq
@@ -66,3 +93,6 @@ if __name__ == "__main__":
 # # plt.plot(spectra_arr[0])
 # plt.plot(spectra_arr[400])
 # plt.show()
+
+
+#%%
