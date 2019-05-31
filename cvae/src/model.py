@@ -1,6 +1,9 @@
 # %%
+from copy import deepcopy
+
 import torch
 import torch.nn as nn
+from torch.nn import functional as F
 
 
 class VariationalAutoEncoder(nn.Module):
@@ -20,24 +23,23 @@ class VariationalAutoEncoder(nn.Module):
             enc_dims=enc_dims,
             dec_dims=dec_dims,
             layer_type=layer_type,
+            dec_activation=dec_activation,
         )
 
-    def _build_enc_dec(self, data_dim, latent_dim, enc_dims, dec_dims, layer_type):
-        enc_dims.insert(0, data_dim)
-        enc_dims.append(latent_dim)
+    def _build_enc_dec(
+        self, data_dim, latent_dim, enc_dims, dec_dims, layer_type, dec_activation
+    ):
         enc_layers = self._build_layers(
-            dims=enc_dims,
+            dims=[data_dim] + enc_dims + [latent_dim],
             layer_type=layer_type,
             last_layer_activation=None,
             mu_var=True,
         )
 
-        dec_dims.append(data_dim)
-        dec_dims.insert(0, latent_dim)
         dec_layers = self._build_layers(
-            dims=dec_dims,
+            dims=[latent_dim] + dec_dims + [data_dim],
             layer_type=layer_type,
-            last_layer_activation=nn.Sigmoid(),
+            last_layer_activation=dec_activation,
             mu_var=False,
         )
         return enc_layers, dec_layers
@@ -93,15 +95,30 @@ class VariationalAutoEncoder(nn.Module):
         return z_mu, z_log_var, x_recon
 
 
-# #%%
-# params = {
-#     "data_dim": 1011,
-#     "latent_dim": 32,
-#     "enc_dims": [128],
-#     "dec_dims": [128],
-#     "layer_type": "fc",
-# }
-# vae = VariationalAutoEncoder(**params)
+class ConditionalVariationalAutoEncoder(VariationalAutoEncoder):
+    def __init__(self, **kwargs):
+        n_condition = kwargs.pop("n_condition")
+        super(ConditionalVariationalAutoEncoder, self).__init__(**kwargs)
+        
+        kwargs["data_dim"] += n_condition
+        self.enc_layers, _ = self._build_enc_dec(**kwargs)
+
+        kwargs["latent_dim"] += n_condition
+        kwargs["data_dim"] -= n_condition
+        _, self.dec_layers = self._build_enc_dec(**kwargs)
+
+    def forward(self, x):
+        assert len(x) == 2
+        x, y = x
+        x = torch.cat([x, y], dim=-1)
+        z_mu, z_log_var = self.encode(x)
+        if self.training:
+            z = self.reparameterize(z_mu, z_log_var)
+        else:
+            z = z_mu
+        z = torch.cat([z, y], dim=-1)
+        x_recon = self.decode(z)
+        return z_mu, z_log_var, x_recon
 
 
 #%%
