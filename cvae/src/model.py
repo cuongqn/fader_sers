@@ -71,7 +71,7 @@ class VariationalAutoEncoder(nn.Module):
         log_var = self.enc_layers[-1](x)
         return mu, log_var
 
-    def sample(self, mu, log_var):
+    def reparameterize(self, mu, log_var):
         std = torch.exp(0.5 * log_var)
         eps = torch.randn_like(std)
         z = eps * std + mu
@@ -85,8 +85,8 @@ class VariationalAutoEncoder(nn.Module):
 
     def forward(self, x):
         z_mu, z_log_var = self.encode(x)
-        if self.model.training:
-            z = self.sample(z_mu, z_log_var)
+        if self.training:
+            z = self.reparameterize(z_mu, z_log_var)
         else:
             z = z_mu
         x_recon = self.decode(z)
