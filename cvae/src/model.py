@@ -85,7 +85,7 @@ class VariationalAutoEncoder(nn.Module):
 
     def forward(self, x):
         z_mu, z_log_var = self.encode(x)
-        if model.training:
+        if self.model.training:
             z = self.sample(z_mu, z_log_var)
         else:
             z = z_mu
